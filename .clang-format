@@ -1,0 +1,19 @@
+---
+# We'll use defaults from the LLVM style, but with 4 columns indentation.
+BasedOnStyle: Microsoft
+UseTab: Never
+IndentWidth: 4
+BreakBeforeBraces: Allman
+ColumnLimit: 240
+---
+Language: Cpp
+
+# Force pointers to the type for C++.
+NamespaceIndentation: All
+AllowShortBlocksOnASingleLine: false
+SpaceBeforeAssignmentOperators: true
+KeepEmptyLinesAtTheStartOfBlocks: true
+MaxEmptyLinesToKeep: 1
+IndentCaseLabels: true
+...
+

@@ -1,60 +1,64 @@
 #ifndef __XMLWRITER_H__
 #define __XMLWRITER_H__
 
-#include <cstddef>
 #include <string>
 #include <vector>
 
-namespace XmlWriter {
+namespace Connectivity
+{
 
-class XmlDoc;
+    class AvXmlDocument;
 
-class NodeRef {
-private:
-  size_t index;
-  XmlDoc &doc;
+    class AvXmlElementRef
+    {
+      private:
+        int m_iIndex;
+        AvXmlDocument *m_rAvXmlDocument;
 
-  friend class XmlDoc;
-  friend class XmlNode;
+        friend class AvXmlDocument;
+        friend class AvXmlElement;
 
-public:
-  NodeRef(size_t index, XmlDoc &doc) : index(index), doc(doc) {}
-  void setAttribute(const std::string &key, const std::string &value);
-  void setText(std::string txt);
-  void setClose(bool close = true);
-  NodeRef insertChildTag(std::string name);
+      public:
+        AvXmlElementRef(size_t index, AvXmlDocument *doc) : m_iIndex(index), m_rAvXmlDocument(doc)
+        {
+        }
+        void setAttribute(const std::string &key, const std::string &value);
+        void setAttribute(const std::string &key, size_t value);
+        void setText(std::string txt);
+        void setSelfClose(bool close = true);
+        AvXmlElementRef insertChildElement(std::string name);
+    };
 
-  const std::string name() const;
-};
+    class AvXmlElement
+    {
+        std::string m_sName;
+        std::vector<std::pair<std::string, std::string>> m_vecAttributes;
+        std::string m_sText;
+        std::vector<AvXmlElementRef> m_vecChildren;
+        bool m_bIsSelfClosing;
 
-class XmlNode {
-  std::string name;
-  std::vector<std::pair<std::string, std::string>> attributes;
-  std::string text;
-  std::vector<NodeRef> childen;
-  bool selfClose;
+        friend class AvXmlElementRef;
+        friend class AvXmlDocument;
 
-  friend class NodeRef;
-  friend class XmlDoc;
+      public:
+        AvXmlElement(const std::string &name);
+        std::string toString() const;
+    };
 
-public:
-  XmlNode(const std::string &name);
-  std::string toString();
-};
+    class AvXmlDocument
+    {
+        std::vector<AvXmlElement> m_vecNodePool;
+        friend class AvXmlElementRef;
 
-class XmlDoc {
-  std::vector<XmlNode> pool;
+        void printElement(std::ofstream &out, const AvXmlElementRef &curr, int deep) const;
 
-  friend class NodeRef;
+      public:
+        AvXmlDocument(const std::string &rootName);
+        int saveFile(const std::string &fileName) const;
+        std::string toString() const;
+        AvXmlElementRef getRootElement() const;
+    };
 
-public:
-  XmlDoc(const std::string &rootName);
-  void printNode(std::ofstream &out, const NodeRef &curr, int deep);
-  int write(const std::string &fileName);
-  void show();
-  NodeRef rootTag();
-};
-
-} // namespace XmlWriter
+} // namespace Connectivity
 
 #endif
