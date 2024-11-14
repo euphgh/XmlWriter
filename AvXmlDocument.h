@@ -1,5 +1,5 @@
-#ifndef __XMLWRITER_H__
-#define __XMLWRITER_H__
+#ifndef __AVXMLDOCUMENT__
+#define __AVXMLDOCUMENT__
 
 #include <string>
 #include <vector>

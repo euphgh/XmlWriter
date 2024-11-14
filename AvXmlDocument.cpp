@@ -1,6 +1,5 @@
-#include "XmlWriter.h"
+#include "AvXmlDocument.h"
 #include <fstream>
-#include <iostream>
 #include <sstream>
 
 namespace Connectivity

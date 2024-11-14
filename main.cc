@@ -1,4 +1,4 @@
-#include "XmlWriter.h"
+#include "AvXmlDocument.h"
 
 int main(int argc, char *argv[])
 {
