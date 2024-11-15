@@ -17,6 +17,11 @@ namespace Connectivity
         m_rAvXmlDocument->m_vecNodePool[m_iIndex].m_vecAttributes.emplace_back(key, value);
     }
 
+    void AvXmlElementRef::setAttribute(const string &key, const size_t value)
+    {
+        setAttribute(key, std::to_string(value));
+    }
+
     void AvXmlElementRef::setText(string text)
     {
         m_rAvXmlDocument->m_vecNodePool[m_iIndex] = text;
