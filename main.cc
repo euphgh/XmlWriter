@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
     auto bia_repeater = doc.getRootElement();
     bia_repeater.setAttribute("normal", "rep");
     auto foo = bia_repeater.insertChildElement("foo");
-    auto bar = bia_repeater.insertChildElement("bar");
+    auto bar = foo.insertChildElement("bar");
     foo.setAttribute("hello", "world");
     doc.saveFile(argv[1]);
     return 0;

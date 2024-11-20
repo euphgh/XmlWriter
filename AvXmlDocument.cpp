@@ -89,7 +89,7 @@ namespace Connectivity
             {
                 printElement(out, child, deep + 1);
             }
-            out << "</" << curr.m_sName << ">\n";
+            out << string(deep * 2, ' ') << '<' << curr.m_sName << ">\n";
         }
     }
 
