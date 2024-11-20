@@ -1,5 +1,5 @@
 MAIN := main
-SRCS := main.cc XmlWriter.cpp
+SRCS := main.cc AvXmlDocument.cpp
 XML  := outputs.xml
 
 $(MAIN): $(SRCS)
