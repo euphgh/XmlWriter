@@ -1,6 +1,7 @@
 #ifndef __AVXMLDOCUMENT__
 #define __AVXMLDOCUMENT__
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -8,20 +9,22 @@ namespace Connectivity
 {
 
     class AvXmlDocument;
+    class AvXmlElement;
 
-    class AvXmlElementRef
+    using AvXmlElementRef = std::shared_ptr<AvXmlElement>;
+    class AvXmlElement
     {
-      private:
-        int m_iIndex;
-        AvXmlDocument *m_rAvXmlDocument;
+        std::string m_sName;
+        std::vector<std::pair<std::string, std::string>> m_vecAttributes;
+        std::string m_sText;
+        std::vector<std::shared_ptr<AvXmlElement>> m_vecChildren;
+        bool m_bIsSelfClosing;
 
         friend class AvXmlDocument;
-        friend class AvXmlElement;
 
       public:
-        AvXmlElementRef(size_t index, AvXmlDocument *doc) : m_iIndex(index), m_rAvXmlDocument(doc)
-        {
-        }
+        AvXmlElement(const std::string &name);
+        std::string toString() const;
         void setAttribute(const std::string &key, const std::string &value);
         void setAttribute(const std::string &key, size_t value);
         void setText(std::string txt);
@@ -29,33 +32,15 @@ namespace Connectivity
         AvXmlElementRef insertChildElement(std::string name);
     };
 
-    class AvXmlElement
-    {
-        std::string m_sName;
-        std::vector<std::pair<std::string, std::string>> m_vecAttributes;
-        std::string m_sText;
-        std::vector<AvXmlElementRef> m_vecChildren;
-        bool m_bIsSelfClosing;
-
-        friend class AvXmlElementRef;
-        friend class AvXmlDocument;
-
-      public:
-        AvXmlElement(const std::string &name);
-        std::string toString() const;
-    };
-
     class AvXmlDocument
     {
-        std::vector<AvXmlElement> m_vecNodePool;
-        friend class AvXmlElementRef;
+        AvXmlElementRef m_pRootElement;
 
         void printElement(std::ofstream &out, const AvXmlElementRef &curr, int deep) const;
 
       public:
         AvXmlDocument(const std::string &rootName);
         int saveFile(const std::string &fileName) const;
-        std::string toString() const;
         AvXmlElementRef getRootElement() const;
     };
 

@@ -1,5 +1,6 @@
 #include "AvXmlDocument.h"
 #include <fstream>
+#include <memory>
 #include <sstream>
 
 namespace Connectivity
@@ -12,26 +13,26 @@ namespace Connectivity
     {
     }
 
-    void AvXmlElementRef::setAttribute(const string &key, const string &value)
+    void AvXmlElement::setAttribute(const string &key, const string &value)
     {
-        m_rAvXmlDocument->m_vecNodePool[m_iIndex].m_vecAttributes.emplace_back(key, value);
+        m_vecAttributes.emplace_back(key, value);
     }
 
-    void AvXmlElementRef::setAttribute(const string &key, const size_t value)
+    void AvXmlElement::setAttribute(const string &key, const size_t value)
     {
         setAttribute(key, std::to_string(value));
     }
 
-    void AvXmlElementRef::setText(string text)
+    void AvXmlElement::setText(string text)
     {
-        m_rAvXmlDocument->m_vecNodePool[m_iIndex] = text;
+        m_sText = text;
         if (text != "")
-            m_rAvXmlDocument->m_vecNodePool[m_iIndex].m_bIsSelfClosing = false;
+            m_bIsSelfClosing = false;
     }
 
-    void AvXmlElementRef::setSelfClose(bool close)
+    void AvXmlElement::setSelfClose(bool close)
     {
-        m_rAvXmlDocument->m_vecNodePool[m_iIndex].m_bIsSelfClosing = close;
+        m_bIsSelfClosing = close;
     }
 
     string AvXmlElement::toString() const
@@ -44,7 +45,7 @@ namespace Connectivity
         childRes << "{ ";
         for (size_t i = 0; i < m_vecChildren.size(); i++)
         {
-            childRes << m_vecChildren[i].m_iIndex << ", ";
+            childRes << m_vecChildren[i]->m_sName << ", ";
         }
         childRes << "}";
 
@@ -62,38 +63,38 @@ namespace Connectivity
         return res.str().c_str();
     }
 
-    AvXmlElementRef AvXmlElementRef::insertChildElement(string name)
+    AvXmlElementRef AvXmlElement::insertChildElement(string name)
     {
-        m_rAvXmlDocument->m_vecNodePool.emplace_back(name);
-        m_rAvXmlDocument->m_vecNodePool[m_iIndex].m_bIsSelfClosing = false;
-        m_rAvXmlDocument->m_vecNodePool[m_iIndex].m_vecChildren.emplace_back(m_rAvXmlDocument->m_vecNodePool.size() - 1, m_rAvXmlDocument);
-        return AvXmlElementRef(m_rAvXmlDocument->m_vecNodePool.size() - 1, m_rAvXmlDocument);
+        m_bIsSelfClosing = false;
+        const auto child = std::make_shared<AvXmlElement>(name);
+        m_vecChildren.emplace_back(child);
+        return child;
     }
 
     void AvXmlDocument::printElement(ofstream &out, const AvXmlElementRef &ref, int deep) const
     {
-        const auto curr = m_vecNodePool[ref.m_iIndex];
-        out << string(deep * 2, ' ') << '<' << curr.m_sName;
-        for (const auto &[key, value] : curr.m_vecAttributes)
+        const auto curr = ref;
+        out << string(deep * 2, ' ') << '<' << curr->m_sName;
+        for (const auto &[key, value] : curr->m_vecAttributes)
         {
             out << ' ' << key << "=\"" << value << "\"";
         }
-        if (curr.m_bIsSelfClosing)
+        if (curr->m_bIsSelfClosing)
         { // no text not child
             out << "/>\n";
         }
         else
         {
-            out << '>' << curr.m_sText << '\n';
-            for (const auto child : curr.m_vecChildren)
+            out << '>' << curr->m_sText << '\n';
+            for (const auto child : curr->m_vecChildren)
             {
                 printElement(out, child, deep + 1);
             }
-            out << string(deep * 2, ' ') << '<' << curr.m_sName << ">\n";
+            out << string(deep * 2, ' ') << '<' << curr->m_sName << ">\n";
         }
     }
 
-    AvXmlDocument::AvXmlDocument(const string &rootName) : m_vecNodePool({rootName})
+    AvXmlDocument::AvXmlDocument(const string &rootName) : m_pRootElement(std::make_shared<AvXmlElement>(rootName))
     {
     }
 
@@ -108,18 +109,8 @@ namespace Connectivity
         return 0;
     }
 
-    string AvXmlDocument::toString() const
-    {
-        std::stringstream res("");
-        for (size_t i = 0; i < m_vecNodePool.size(); i++)
-        {
-            res << "node[" << i << "]: " << m_vecNodePool[i].toString() << "%s\n";
-        }
-        return res.str();
-    }
-
     AvXmlElementRef AvXmlDocument::getRootElement() const
     {
-        return AvXmlElementRef(0, (AvXmlDocument *)this);
+        return m_pRootElement;
     }
 } // namespace Connectivity
