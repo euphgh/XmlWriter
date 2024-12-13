@@ -1,4 +1,5 @@
 #include "AvXmlDocument.h"
+#include <cstddef>
 #include <fstream>
 #include <memory>
 #include <sstream>
@@ -66,7 +67,7 @@ namespace Connectivity
     AvXmlElementRef AvXmlElement::insertChildElement(string name)
     {
         m_bIsSelfClosing = false;
-        const auto child = std::make_shared<AvXmlElement>(name);
+        const auto child = mkSharedPtr(name);
         m_vecChildren.emplace_back(child);
         return child;
     }
@@ -94,7 +95,7 @@ namespace Connectivity
         }
     }
 
-    AvXmlDocument::AvXmlDocument(const string &rootName) : m_pRootElement(std::make_shared<AvXmlElement>(rootName))
+    AvXmlDocument::AvXmlDocument(const string &rootName) : m_pRootElement(mkSharedPtr(rootName))
     {
     }
 
